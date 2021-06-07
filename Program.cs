@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Collections.Generic;
+using System.Net.Mail;
 
 namespace METUCafeteriaBot
 {
@@ -29,6 +30,9 @@ namespace METUCafeteriaBot
             List<string> mealList = GetMeals(pageSource);
 
             if(mealList.Count != 0){
+                //Gmail less secure app access setting should be on
+                SendEmail(mealList);
+
                 // Send message
                 // To be continued in here
 
@@ -36,6 +40,10 @@ namespace METUCafeteriaBot
                     Console.WriteLine(item);
                 }
             }
+            else{
+               // At weekends and holidays there is no meal
+               Console.WriteLine("No meal in today!");
+           }
         }
 
         private static List<string> GetMeals(string pageSource){
@@ -70,12 +78,46 @@ namespace METUCafeteriaBot
                 pList.RemoveAt(item);
             }
            }
-           else{
-               // At weekends and holidays there is no meal
-               Console.WriteLine("No meal in today!");
-           }
 
             return pList;
+        }
+        
+        private static void SendEmail(List<string> mealList)
+        {
+            string from, password, to, subject, content, style;
+            from = "sender_email_address";
+            password = "sender_password";
+            to = "recipient_email_address";
+            subject = "Today's Menu"+ " - " + DateTime.Today.ToString("dd-MM-yyyy");
+            content = "<table style=\"border-collapse:collapse; text-align:center;\" ><tr>";
+
+            style = " style=\" border-color:#000000; border-style:solid; border-width:thin; padding: 5px;\"";
+
+            for(int i = 0; i < 8; i++){
+                if(i == 0)
+                content += "<td" + style + ">Afternoon</td>";
+
+                if(i == 4){
+                content += "</tr><tr>";
+                content += "<td" + style + ">Evening</td>";
+                }
+
+                content += "<td" + style + ">"+ mealList[i] +"</td>";
+            }
+
+            content += "</tr></table>";
+
+            MailMessage mail = new MailMessage();
+            mail.From = new MailAddress(from);
+            mail.To.Add(to);
+            mail.Subject = subject;
+            mail.Body = content;
+            mail.IsBodyHtml = true;
+
+            SmtpClient smtp = new SmtpClient("smtp.gmail.com", 587);
+            smtp.Credentials = new NetworkCredential(from, password);
+            smtp.EnableSsl = true;
+            smtp.Send(mail);
         }
     }
 }
