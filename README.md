@@ -5,18 +5,13 @@ A console app created with C#
 ## Table of contents
 
 - [General info](#general-info)
-- [Screenshots](#screenshots)
 - [Technologies](#technologies)
 - [Setup](#setup)
-- [Code Examples](#code-examples)
 - [Features](#features)
 - [Status](#status)
-- [Inspiration](#inspiration)
 - [Contact](#contact)
 
 ## General info
-
-## Screenshots
 
 ## Technologies
 
@@ -26,17 +21,19 @@ Project is created with:
 
 ## Setup
 
-## Code Examples
+After downloading this console app to local computer, some lines are have to revise. These are Slack incoming webhook, sender e-mail address and password, recipient e-mail address and Slack app name. Then, a basic task should be created in Task Scheduler. The time when the task should run is provided. At 11AM for every weekday is the best.
 
 ## Features
 
 List of features ready
 
+- Read data from a web site
+- Send an e-mail to someone
+- Send a message to Slack channel
+
 ## Status
 
-Project is continued.
-
-## Inspiration
+Project is finished.
 
 ## Contact
 

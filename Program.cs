@@ -2,11 +2,15 @@
 using System.Net;
 using System.Collections.Generic;
 using System.Net.Mail;
+using SlackBotMessages;
+using SlackBotMessages.Models;
 
 namespace METUCafeteriaBot
 {
     class Program
     {
+        private static string WebHookUrl => "webhookurl";
+
         static void Main(string[] args)
         {
             WebClient client = new WebClient();
@@ -30,15 +34,10 @@ namespace METUCafeteriaBot
             List<string> mealList = GetMeals(pageSource);
 
             if(mealList.Count != 0){
-                //Gmail less secure app access setting should be on
+                // Gmail less secure app access setting should be on
                 SendEmail(mealList);
 
-                // Send message
-                // To be continued in here
-
-                foreach(var item in mealList){
-                    Console.WriteLine(item);
-                }
+                SendMessage(WebHookUrl, mealList);
             }
             else{
                // At weekends and holidays there is no meal
@@ -68,9 +67,6 @@ namespace METUCafeteriaBot
 
                     pageSource = pageSource.Remove(0, startIndex);
                 }
-
-            // 0th, 1st, 2nd and 3rd elements of list are consist of afternoon meal
-            // 4th, 5th, 6th and 7th elements of list are consist of evening meal
 
             int[] irrelevantItemIndexes = {0, 4, 8};
 
@@ -118,6 +114,34 @@ namespace METUCafeteriaBot
             smtp.Credentials = new NetworkCredential(from, password);
             smtp.EnableSsl = true;
             smtp.Send(mail);
+        }
+
+        private static void SendMessage(string webHookURL, List<string> mealList)
+        {
+            var client = new SbmClient(webHookURL);
+            var message = new Message
+            {
+                // An app as named this username should be in Slack workspace
+                Username = "METUCafeteriaBot",
+                IconUrl = "https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png",
+                Attachments = new List<SlackBotMessages.Models.Attachment>
+                    {
+                        new SlackBotMessages.Models.Attachment
+                        {
+                        Color = "good",
+                        Fields = new List<Field>
+                            {
+                                new Field
+                                {
+                                 Title = "Today's Menu" + " - " + DateTime.Now.ToString("dd-MM-yyyy") + " " + Emoji.Spaghetti,
+                                 Value = "Afternoon" + "\r\n" +mealList[0] + "\r\n" + mealList[1] + "\r\n" + mealList[2] + "\r\n" + mealList[3] + "\r\n" + "Evening" + "\r\n" + mealList[4] + "\r\n" + mealList[5] + "\r\n" + mealList[6] + "\r\n" + mealList[7]
+                                }
+                            }
+                        }
+                    }
+            };
+
+            client.Send(message);
         }
     }
 }
